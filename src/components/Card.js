@@ -1,16 +1,17 @@
 import React from "react";
 
 const translator = {
-    "D": ["diams","♦"],
-    "H": ["hearts","♥"],
-    "C": ["clubs","♣"],
-    "S": ["spades","♠"],
+    suit: [["diams", "♦"], ["hearts", "♥"], ["clubs", "♣"], ["spades", "♠"]],
+    rank: ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
 }
+
 function Card(props) {
+    console.log(props);
     return (
-        <div className={"card" + " " + "rank-" + props.rank.toLowerCase() + " " + translator[props.suit][0]} href="#">
-            <span className="rank">{props.rank}</span>
-    <span className="suit">{translator[props.suit][1]}</span>
+        <div className={"card" + " " + "rank-" + translator.rank[props.rank].toLowerCase()
+                + " " + translator.suit[props.suit][0]}>
+            <span className="rank">{translator.rank[props.rank]}</span>
+            <span className="suit">{translator.suit[props.suit][1]}</span>
         </div>
     )
 }
