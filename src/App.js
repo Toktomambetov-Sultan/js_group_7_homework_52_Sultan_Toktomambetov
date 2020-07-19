@@ -1,81 +1,24 @@
 import React, { Component } from 'react';
 import Card, { translator } from "./components/Card";
+import {PokerHandMeneger} from "./classes/PokerHandManager";
+import  {CardDeck} from "./classes/CardDeck";
 import './assets/cards.css';
 import './App.css';
-function random(max) {
-  return Math.floor(Math.random() * max);
-}
-class CardDeck {
-  constructor(state) {
-    this.updateNewDeck();
-  }
-  updateNewDeck() {
-    const cards = [];
-    for (let rank = 0; rank < 13; rank++) {
-      for (let suit = 0; suit < 4; suit++) {
-        cards.push({
-          rank, suit
-        });
-      }
-    }
-    this.deck = cards;
-  }
-  _getCard() {
-    return this.deck.splice(random(this.deck.length), 1);
-  }
-  getCards(int = 5) {
-    const cards = [];
-    for (let i = 0; i < int; i++) { cards.push(this._getCard(cards)[0]); }
-    return cards;
-  }
-}
-class PokerHandMeneger {
-  funcs = [
-    cards => new Set(cards.map(card => card.suit)).size == 1 ? "flush" : false,
-    function (cards) {
-      const ranks = cards.map(card => card.rank);
-      const copyRanks = [...ranks];
-      const result = {};
-      ranks.forEach((rank) => {
-        let repeat = 0;
-        while (copyRanks.indexOf(rank) + 1) {
-          repeat++;
-          copyRanks.splice(copyRanks.indexOf(rank), 1);
-        }
-        if (repeat) {
-          result[rank] = repeat;
-        }
-      })
-      const entResult = Object.entries(result).sort((a, b) => b[1] - a[1]);
-      if (entResult[0][1] >= 3) { return "three of kind " + translator.rank[entResult[0][0]] }
-      else if (entResult[0][1] === 2 && entResult[1][1] === 2) { return "two pairs " + translator.rank[entResult[0][0]] + ":" + translator.rank[entResult[1][0]] }
-      else if (entResult[0][1] === 2) { return "one pair " + translator.rank[entResult[0][0]] }
-      else { return "nothing" }
-    }
-  ]
-  setCards(cards) {
-    const CopyCards = [...cards];
-    for(let func of this.funcs){
-      if(func(CopyCards)){
-        return func(CopyCards);
-      }
-    }
-  }
-}
+
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       cards: [],
-      winning: '',
+      foundResult: {},
     }
     this.deck = new CardDeck();
     this.PokerHandMeneger = new PokerHandMeneger();
   }
   generate = () => {
     const cards = [...this.deck.getCards()];
-    const winning=this.PokerHandMeneger.setCards(cards);
-    this.setState({ cards,winning });
+    const foundResult = this.PokerHandMeneger.setCards(cards);
+    this.setState({ cards, foundResult });
     this.deck.updateNewDeck();
   }
   render() {
@@ -83,11 +26,9 @@ class App extends Component {
       <div className="wrapper">
         <div className="container">
           <div className="playingCards Cards">
-            {this.state.cards.map((cards, index) => (
-              <Card key={index} suit={cards.suit} rank={cards.rank} />
-            ))}
+            {this.state.cards.map((cards, index) => (<Card key={index} suit={cards.suit} rank={cards.rank} active={Boolean(this.state.foundResult.indexes.indexOf(index) + 1)} />))}
           </div>
-            <p className="winning">{this.state.winning}</p>
+          <p className="winning">{this.state.foundResult.winning}</p>
           <button onClick={this.generate} className="generate-btn">generate</button>
         </div>
       </div>
