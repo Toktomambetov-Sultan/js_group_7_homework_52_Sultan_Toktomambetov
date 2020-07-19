@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Card, { translator } from "./components/Card";
-import './assets/cards.css'
+import './assets/cards.css';
+import './App.css';
 function random(max) {
   return Math.floor(Math.random() * max);
 }
@@ -46,17 +47,19 @@ class PokerHandMeneger {
         }
       })
       const entResult = Object.entries(result).sort((a, b) => b[1] - a[1]);
-      if (entResult[0][1] >= 3) { return "three of a kind " + translator.rank[entResult[0][0]] }
+      if (entResult[0][1] >= 3) { return "three of kind " + translator.rank[entResult[0][0]] }
       else if (entResult[0][1] === 2 && entResult[1][1] === 2) { return "two pairs " + translator.rank[entResult[0][0]] + ":" + translator.rank[entResult[1][0]] }
       else if (entResult[0][1] === 2) { return "one pair " + translator.rank[entResult[0][0]] }
-      else { return "ничего" }
+      else { return "nothing" }
     }
   ]
   setCards(cards) {
     const CopyCards = [...cards];
-    this.funcs.forEach((func) => {
-      if (func(CopyCards)) { console.log(func(CopyCards)); }
-    })
+    for(let func of this.funcs){
+      if(func(CopyCards)){
+        return func(CopyCards);
+      }
+    }
   }
 }
 class App extends Component {
@@ -64,24 +67,28 @@ class App extends Component {
     super(props);
     this.state = {
       cards: [],
+      winning: '',
     }
     this.deck = new CardDeck();
     this.PokerHandMeneger = new PokerHandMeneger();
   }
   generate = () => {
     const cards = [...this.deck.getCards()];
-    this.PokerHandMeneger.setCards(cards);
-    this.setState({ cards });
+    const winning=this.PokerHandMeneger.setCards(cards);
+    this.setState({ cards,winning });
     this.deck.updateNewDeck();
   }
   render() {
     return (
-      <div>
-        <button onClick={this.generate} >generate</button>
-        <div className="playingCards">
-          {this.state.cards.map((cards, index) => (
-            <Card key={index} suit={cards.suit} rank={cards.rank} />
-          ))}
+      <div className="wrapper">
+        <div className="container">
+          <div className="playingCards Cards">
+            {this.state.cards.map((cards, index) => (
+              <Card key={index} suit={cards.suit} rank={cards.rank} />
+            ))}
+          </div>
+            <p className="winning">{this.state.winning}</p>
+          <button onClick={this.generate} className="generate-btn">generate</button>
         </div>
       </div>
     )
